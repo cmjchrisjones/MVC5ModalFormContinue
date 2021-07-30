@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace WebApplication1.Controllers
@@ -17,8 +19,10 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public ActionResult Index(DisAModel model)
+        public async Task<ActionResult> Index(DisAModel model)
         {
+            await Task.Delay(300);
+
             if (ModelState.IsValid)
             {
                 if (Names == null)
