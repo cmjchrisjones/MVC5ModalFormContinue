@@ -1,0 +1,119 @@
+﻿@model WebApplication1.Controllers.DisAModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+@if (TempData != null && TempData["Error"] != null)
+{
+    if ((bool)TempData["Error"])
+    {
+        <div class="alert alert-danger" role="alert">It Derped because @TempData["Reason"]</div>
+    }
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>DisAModel</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<hr />
+<h4>This is exactly the same form, but intercepted with JS</h4>
+
+
+@using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @class = "ajaxForm", id = "ajaxForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" id="ajaxFormCreateBtn" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Button trigger modal -->
+    <a data-toggle="modal" data-target="#myModal"></a>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">STOP</h4>
+                </div>
+                <div class="modal-body">
+                    Should we continue to do the do?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Don't do the do</button>
+                    <button type="button" id="modalConfirm" class="btn btn-primary">Hecc Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    <script>
+        var theForm = document.getElementById('ajaxForm');
+        theForm.addEventListener('submit', function (e) {
+            alert("we stopped it!");
+            e.preventDefault();
+            var data = $(theForm).serialize();
+            console.log(data);
+
+            $.ajax({
+                method: 'POST',
+                url: "@Url.Action("ShouldWeDoTheDo", "Home")",
+                data: data,
+                success: function (res) {
+                    console.log(res);
+                    if (res.doTheDo) {
+                        $('#myModal').modal('show');
+
+                        var modalConfirm = document.getElementById('modalConfirm');
+                        modalConfirm.addEventListener('click', function () {
+                            $(theForm).submit();
+                        });
+                    }
+                }
+            })
+        });
+    </script>
+}
